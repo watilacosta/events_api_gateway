@@ -1,0 +1,33 @@
+services:
+  web:
+    networks:
+      events_manager:
+    container_name: events_gateway_api
+    working_dir: /events_gateway_api
+    build: .
+    volumes:
+      - .:/events_gateway_api
+    ports:
+      - "3003:3000"
+    environment:
+      - RAILS_ENV=development
+    command: bash -c "rm -f tmp/pids/server.pid && bundle install && bundle exec rails s -p 3003 -b '0.0.0.0'"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - db
+  db:
+    networks:
+      events_manager:
+    image: postgres:latest
+    container_name: events_gateway_db
+    ports:
+      - "5436:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=rails_app_development
+networks:
+  events_manager:
+    name: events_manager
+    external: true
